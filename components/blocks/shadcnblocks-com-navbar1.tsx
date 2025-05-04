@@ -84,7 +84,7 @@ const Navbar1 = ({
   ],
   mobileExtraLinks = [
     { name: "Contact", url: "/" },
-    { name: "Karess", url: "/" },
+    { name: "Karess", url: "https://karess69.vercel.app" },
     { name: "GitHub", url: "https://github.com/MisbahAnsar/Ather" },
     { name: "Discord", url: "https://discord.gg/dK7rfcQGkC" },
   ],
