@@ -4,13 +4,21 @@ import { useEffect, useRef, useState } from "react";
 import Vapi from "@vapi-ai/web";
 import toast from "react-hot-toast";
 
+type VapiMessage = 
+  | { type: "assistant-speaking" }
+  | { type: "assistant-done" }
+  | { type: "volume-level", volume: number }
+  | { type: "error", message: string }
+  | { type: "call-start" }
+  | { type: "call-end" }
+
 export const useVapi = () => {
   const vapiRef = useRef<Vapi | null>(null);
   const volumeLevelRef = useRef<number>(0);
-  const messageHandlerRef = useRef<((message: any) => void) | undefined>(undefined);
+  const messageHandlerRef = useRef<((message: VapiMessage) => void) | undefined>(undefined);
   const [isCallActive, setIsCallActive] = useState(false);
 
-  const setMessageHandler = (handler: (message: any) => void) => {
+  const setMessageHandler = (handler: (message: VapiMessage) => void) => {
     messageHandlerRef.current = handler;
   };
 

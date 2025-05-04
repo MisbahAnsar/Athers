@@ -1,5 +1,6 @@
 import { Github } from "lucide-react";
 import { DiscordLogoIcon, TwitterLogoIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -18,9 +19,9 @@ export default function Footer() {
         <div>
           <h4 className="text-md font-semibold mb-4 text-neutral-200">Explore</h4>
           <ul className="space-y-2 text-sm text-neutral-400">
-            <li><a href="/" className="hover:text-white transition">Home</a></li>
-            <li><a href="/ather" className="hover:text-white transition">Try ATHERS</a></li>
-            <li><a href="/" className="hover:text-white transition">FAQs</a></li>
+            <li><Link href="/" className="hover:text-white transition">Home</Link></li>
+            <li><Link href="/ather" className="hover:text-white transition">Try ATHERS</Link></li>
+            <li><Link href="/" className="hover:text-white transition">FAQs</Link></li>
           </ul>
         </div>
 
@@ -35,15 +36,15 @@ export default function Footer() {
         <div>
           <h4 className="text-md font-semibold mb-4 text-neutral-200">Follow us</h4>
           <div className="flex space-x-5 text-neutral-400">
-            <a href="https://x.com/Misba8069" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-xl">
+            <Link href="https://x.com/Misba8069" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-xl">
               <TwitterLogoIcon width={20} height={20} />
-            </a>
-            <a href="https://github.com/MisbahAnsar/Ather" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
+            </Link>
+            <Link href="https://github.com/MisbahAnsar/Ather" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
               <Github size={20} />
-            </a>
-            <a href="https://discord.gg/dK7rfcQGkC" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
+            </Link>
+            <Link href="https://discord.gg/dK7rfcQGkC" target="_blank" rel="noopener noreferrer" className="hover:text-white transition">
               <DiscordLogoIcon width={20} height={20} />
-            </a>
+            </Link>
           </div>
         </div>
       </div>
