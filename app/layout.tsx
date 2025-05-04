@@ -1,7 +1,5 @@
 import { type Metadata } from 'next'
-import {
-  ClerkProvider,
-} from '@clerk/nextjs'
+import { ClerkProvider } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 
@@ -17,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Athers - Your AI Therapist',
-  description: 'Your chill AI therapist who vibes with Gen Z and provides supportive mental health conversations.',
+  description: 'Your chill AI therapist who vibes with Gen Z and provides supportive mental health conversation.',
 }
 
 export default function RootLayout({
