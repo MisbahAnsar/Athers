@@ -29,7 +29,7 @@ export const useVapi = () => {
 
       vapi.on("call-start", () => {
         setIsCallActive(true);
-        toast.success("Call started!");
+        toast.success("Call started, Say Hello!");
       });
 
       vapi.on("call-end", () => {
