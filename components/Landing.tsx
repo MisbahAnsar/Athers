@@ -15,9 +15,11 @@ export default function Landing() {
         Discover the power of voice-first therapy with your personal AI listener, Athers.
       </div>
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 sm:mt-12">
-        <Button className="rounded-md hover:bg-black p-4 sm:p-6 md:p-8 ibm-plex-mono-regular text-base sm:text-lg md:text-xl w-full sm:w-auto text-center">
-          JOIN THE COMMUNITY
-        </Button>
+        <Link href="https://discord.gg/dK7rfcQGkC" className="w-full sm:w-auto">
+          <Button className="rounded-md hover:bg-black p-4 sm:p-6 md:p-8 ibm-plex-mono-regular text-base sm:text-lg md:text-xl w-full sm:w-auto text-center">
+            JOIN THE COMMUNITY
+          </Button>
+        </Link>
         <Link href="/ather" className="w-full sm:w-auto">
           <Button className="bg-white border hover:bg-white text-black rounded-md p-4 sm:p-6 md:p-8 ibm-plex-mono-regular text-base sm:text-lg md:text-xl w-full">
             TRY ATHERS NOW
