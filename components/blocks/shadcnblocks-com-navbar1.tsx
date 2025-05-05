@@ -94,7 +94,7 @@ const Navbar1 = ({
     },
   ],
   mobileExtraLinks = [
-    { name: "GitHub", url: "https://github.com/MisbahAnsar/Ather" },
+    { name: "GitHub", url: "https://github.com/MisbahAnsar/Athers" },
     { name: "Discord", url: "https://discord.gg/dK7rfcQGkC" },
   ],
   auth = {
