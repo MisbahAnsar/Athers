@@ -3,7 +3,7 @@ import { WobbleCard } from './ui/wobble-card'
 
 export default function Page() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 lg:py-12">
+    <div id="about" className="grid grid-cols-1 lg:grid-cols-3 gap-4 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8 lg:py-12">
       {/* First Card (Double Width on Desktop) */}
       <WobbleCard
         containerClassName="col-span-1 lg:col-span-2 h-full bg-pink-800 min-h-[300px] sm:min-h-[400px] lg:min-h-[300px] relative"

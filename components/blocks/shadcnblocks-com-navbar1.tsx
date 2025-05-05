@@ -1,3 +1,5 @@
+"use client"
+
 import { Menu, Github } from "lucide-react";
 import { DiscordLogoIcon } from "@radix-ui/react-icons";
 import {
@@ -5,6 +7,7 @@ import {
   SignedOut,
   SignInButton,
   SignUpButton,
+  SignOutButton,
   UserButton,
 } from "@clerk/nextjs";
 import {
@@ -31,6 +34,18 @@ import {
 } from "@/components/ui/sheet";
 import { JSX } from "react/jsx-runtime";
 import Image from "next/image";
+import { useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface MenuItem {
   title: string;
@@ -75,16 +90,10 @@ const Navbar1 = ({
     { title: "Home", url: "/" },
     {
       title: "About",
-      url: "/"
-    },
-    {
-      title: "Pricing",
-      url: "/",
+      url: "#about"
     },
   ],
   mobileExtraLinks = [
-    { name: "Contact", url: "/" },
-    { name: "Karess", url: "https://karess69.vercel.app" },
     { name: "GitHub", url: "https://github.com/MisbahAnsar/Ather" },
     { name: "Discord", url: "https://discord.gg/dK7rfcQGkC" },
   ],
@@ -93,6 +102,12 @@ const Navbar1 = ({
     signup: { text: "Sign up", url: "/" },
   },
 }: Navbar1Props) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleAuthAction = () => {
+    setIsOpen(false);
+  };
+
   return (
     <section className="py-4 px-2 lg:px-0 flex items-center justify-center">
       <div className="container max-w-7xl">
@@ -158,7 +173,7 @@ const Navbar1 = ({
               <Image width={100} height={100} src={logo.src} className="w-8" alt={logo.alt} />
               <span className="text-lg font-semibold">{logo.title}</span>
             </a>
-            <Sheet>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
                   <Menu className="size-4" />
@@ -203,22 +218,34 @@ const Navbar1 = ({
                   <div className="flex flex-col gap-3">
                     <SignedOut>
                       <SignInButton mode="modal">
-                        <Button variant="outline">{auth.login.text}</Button>
+                        <Button variant="outline" onClick={handleAuthAction}>{auth.login.text}</Button>
                       </SignInButton>
                       <SignUpButton mode="modal">
-                        <Button>{auth.signup.text}</Button>
+                        <Button onClick={handleAuthAction}>{auth.signup.text}</Button>
                       </SignUpButton>
                     </SignedOut>
                     <SignedIn>
-                      <div className="flex justify-center sm:justify-normal">
-                        <UserButton
-                          appearance={{
-                            elements: {
-                              userButtonAvatarBox: "w-10 h-10",
-                            },
-                          }}
-                        />
-                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" className="w-full">Sign Out</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure you want to sign out?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              You will need to sign in again to access your account.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <SignOutButton>
+                              <AlertDialogAction onClick={handleAuthAction}>
+                                Yes, sign out
+                              </AlertDialogAction>
+                            </SignOutButton>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </SignedIn>
                   </div>
                 </div>
@@ -271,6 +298,15 @@ const renderMenuItem = (item: MenuItem) => {
       key={item.title}
       className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-lg uppercase ibm-plex-mono-regular text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground"
       href={item.url}
+      onClick={(e) => {
+        if (item.url.startsWith('#')) {
+          e.preventDefault();
+          const element = document.querySelector(item.url);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      }}
     >
       {item.title}
     </a>

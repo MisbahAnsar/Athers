@@ -52,7 +52,7 @@ export default function Faqs() {
   };
 
   return (
-    <div className="flex flex-col items-center px-4"> {/* Removed -mt-40, added py-20 */}
+    <div id="faqs-section" className="flex flex-col items-center px-4">
       <h2 className="text-3xl md:text-5xl lg:text-7xl ibm-plex-mono-medium tracking-tighter mb-8 md:mb-14">
         FREQUENTLY ASKED QUESTIONS
       </h2>

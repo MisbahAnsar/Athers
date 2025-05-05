@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Landing() {
   return (
-    <div className="px-4 sm:px-6 lg:px-8 py-12 md:py-24">
+    <div id="home-section" className="px-4 sm:px-6 lg:px-8 py-12 md:py-24">
       <div className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl text-center ibm-plex-mono-medium tracking-tight leading-[1.2] sm:leading-[1.3] md:leading-[1.4] lg:leading-[1.5] xl:leading-[6.2rem] mt-4">
         ATHERS: YOUR <span className="text-[#DD89FE]">VOICE </span>
         <br className="hidden sm:block" />

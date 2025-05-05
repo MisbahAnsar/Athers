@@ -1,8 +1,29 @@
+"use client"
+
 import { Github } from "lucide-react";
 import { DiscordLogoIcon, TwitterLogoIcon } from "@radix-ui/react-icons";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Footer() {
+  const router = useRouter();
+
+  const scrollToFaqs = () => {
+    const faqsSection = document.getElementById('faqs-section');
+    if (faqsSection) {
+      faqsSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToHome = () => {
+    const homeSection = document.getElementById('home-section');
+    if (homeSection) {
+      homeSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      router.push('/');
+    }
+  };
+
   return (
     <footer className="bg-black text-white w-full px-6 py-16 mt-20 rounded-t-3xl shadow-[0_-5px_50px_rgba(255,0,255,0.1)]">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 ibm-plex-mono-regular">
@@ -19,9 +40,9 @@ export default function Footer() {
         <div>
           <h4 className="text-md font-semibold mb-4 text-neutral-200">Explore</h4>
           <ul className="space-y-2 text-sm text-neutral-400">
-            <li><Link href="/" className="hover:text-white transition">Home</Link></li>
+            <li><button onClick={scrollToHome} className="hover:text-white transition">Home</button></li>
             <li><Link href="/ather" className="hover:text-white transition">Try ATHERS</Link></li>
-            <li><Link href="/" className="hover:text-white transition">FAQs</Link></li>
+            <li><button onClick={scrollToFaqs} className="hover:text-white transition">FAQs</button></li>
           </ul>
         </div>
 
