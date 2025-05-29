@@ -46,6 +46,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { WalletDisconnectButton, WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWallet } from "@solana/wallet-adapter-react";
+import '@solana/wallet-adapter-react-ui/styles.css';
 
 interface MenuItem {
   title: string;
@@ -103,6 +106,8 @@ const Navbar1 = ({
   },
 }: Navbar1Props) => {
   const [isOpen, setIsOpen] = useState(false);
+  const {publicKey} = useWallet()
+
 
   const handleAuthAction = () => {
     setIsOpen(false);
@@ -165,6 +170,15 @@ const Navbar1 = ({
                 />
               </SignedIn>
             </div>
+            
+            <div className='flex'>
+            {publicKey ? (
+              <WalletDisconnectButton className="!bg-destructive hover:!bg-destructive/90" />
+            ) : (
+              <WalletMultiButton className="!bg-primary hover:!bg-primary/90" />
+            )}
+          </div>
+
           </div>
         </nav>
         <div className="block lg:hidden">
