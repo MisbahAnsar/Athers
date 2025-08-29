@@ -54,6 +54,7 @@ export const useVapi = () => {
       });
 
       vapi.on("error", (error) => {
+        console.error("Vapi error:", error);
         toast.error(`Error: ${error.message}`);
       });
     }
@@ -100,6 +101,7 @@ export const useVapi = () => {
         voiceId: "jennifer",
       },
       name: "Ather",
+      firstMessage: "Hey, I'm Ather. What's on your mind today?",
       artifactPlan: {
         recordingEnabled: false,
         transcriptPlan: {
