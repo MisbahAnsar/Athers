@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import Vapi from "@vapi-ai/web";
 import toast from "react-hot-toast";
 
@@ -12,61 +12,111 @@ type VapiMessage =
   | { type: "call-start" }
   | { type: "call-end" }
 
+// Singleton pattern to ensure Vapi is only instantiated once globally
+let vapiInstance: Vapi | null = null;
+let listenersInitialized = false;
+
+// Shared state across all hook instances
+let isCallActiveState = false;
+const callStateListeners = new Set<() => void>();
+
+const notifyCallStateChange = () => {
+  callStateListeners.forEach(listener => listener());
+};
+
+const getVapiInstance = () => {
+  if (!vapiInstance) {
+    vapiInstance = new Vapi(process.env.NEXT_PUBLIC_VAPI_KEY!);
+    console.log("Vapi SDK initialized (singleton)");
+  }
+  return vapiInstance;
+};
+
+// Get the singleton instance
+const vapi = getVapiInstance();
+
+// Initialize event listeners once
+const initializeListeners = () => {
+  if (listenersInitialized) return;
+  listenersInitialized = true;
+  
+  console.log("Setting up Vapi event listeners (once)");
+
+  vapi.on("call-start", () => {
+    isCallActiveState = true;
+    notifyCallStateChange();
+    toast.success("Call started, Say Hello!");
+  });
+
+  vapi.on("call-end", () => {
+    isCallActiveState = false;
+    notifyCallStateChange();
+    toast("Call ended");
+    console.log("Vapi call-ended");
+  });
+
+  vapi.on("error", (error) => {
+    console.error("Vapi error:", error);
+    toast.error(`Error: ${error.message}`);
+  });
+};
+
 export const useVapi = () => {
-  const vapiRef = useRef<Vapi | null>(null);
   const volumeLevelRef = useRef<number>(0);
   const messageHandlerRef = useRef<((message: VapiMessage) => void) | undefined>(undefined);
-  const [isCallActive, setIsCallActive] = useState(false);
+  
+  // Use shared state for isCallActive
+  const isCallActive = useSyncExternalStore(
+    (callback) => {
+      callStateListeners.add(callback);
+      return () => callStateListeners.delete(callback);
+    },
+    () => isCallActiveState,
+    () => isCallActiveState
+  );
 
-  const setMessageHandler = (handler: (message: VapiMessage) => void) => {
+  const setMessageHandler = useCallback((handler: (message: VapiMessage) => void) => {
     messageHandlerRef.current = handler;
-  };
+  }, []);
 
   useEffect(() => {
-    if (!vapiRef.current) {
-      const vapi = new Vapi(process.env.NEXT_PUBLIC_VAPI_KEY!);
-      vapiRef.current = vapi;
+    // Initialize listeners once
+    initializeListeners();
 
-      vapi.on("call-start", () => {
-        setIsCallActive(true);
-        toast.success("Call started, Say Hello!");
-      });
+    // Set up message-specific listeners
+    const handleSpeechStart = () => {
+      messageHandlerRef.current?.({ type: "assistant-speaking" });
+    };
 
-      vapi.on("call-end", () => {
-        setIsCallActive(false);
-        toast("Call ended");
-      });
+    const handleSpeechEnd = () => {
+      messageHandlerRef.current?.({ type: "assistant-done" });
+    };
 
-      vapi.on("speech-start", () => {
-        messageHandlerRef.current?.({ type: "assistant-speaking" });
-      });
+    const handleVolumeLevel = (volume: number) => {
+      volumeLevelRef.current = volume;
+    };
 
-      vapi.on("speech-end", () => {
-        messageHandlerRef.current?.({ type: "assistant-done" });
-      });
+    const handleMessage = (message: VapiMessage) => {
+      console.log("Message:", message);
+      messageHandlerRef.current?.(message);
+    };
 
-      vapi.on("volume-level", (volume) => {
-        volumeLevelRef.current = volume;
-      });
-
-      vapi.on("message", (message) => {
-        messageHandlerRef.current?.(message);
-      });
-
-      vapi.on("error", (error) => {
-        console.error("Vapi error:", error);
-        toast.error(`Error: ${error.message}`);
-      });
-    }
+    vapi.on("speech-start", handleSpeechStart);
+    vapi.on("speech-end", handleSpeechEnd);
+    vapi.on("volume-level", handleVolumeLevel);
+    vapi.on("message", handleMessage);
 
     return () => {
-      vapiRef.current?.stop();
+      // Clean up only this component's listeners
+      vapi.off("speech-start", handleSpeechStart);
+      vapi.off("speech-end", handleSpeechEnd);
+      vapi.off("volume-level", handleVolumeLevel);
+      vapi.off("message", handleMessage);
     };
   }, []);
 
-  const startCall = async () => {
-    if (!vapiRef.current) return;
-    return await vapiRef.current.start({
+  const startCall = useCallback(async () => {
+    return await vapi.start({
       transcriber: {
         provider: "deepgram",
         model: "nova-2",
@@ -109,21 +159,21 @@ export const useVapi = () => {
         },
       },
     });
-  };
+  }, []);
 
-  const stopCall = () => {
-    vapiRef.current?.stop();
-  };
+  const stopCall = useCallback(() => {
+    vapi.stop();
+  }, []);
 
-  const getVolumeLevel = () => volumeLevelRef.current;
+  const getVolumeLevel = useCallback(() => volumeLevelRef.current, []);
 
   return {
     startCall,
     stopCall,
     getVolumeLevel,
     setMessageHandler,
-    isMuted: () => vapiRef.current?.isMuted(),
-    setMuted: (muted: boolean) => vapiRef.current?.setMuted(muted),
+    isMuted: () => vapi.isMuted(),
+    setMuted: (muted: boolean) => vapi.setMuted(muted),
     isCallActive,
   };
 };

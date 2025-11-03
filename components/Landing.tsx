@@ -9,7 +9,7 @@ export default function Landing() {
         <br className="hidden sm:block" />
         AI THERAPIST
       </div>
-      <div className="mt-6 sm:mt-8 text-center text-base sm:text-lg md:text-xl ibm-plex-mono-regular uppercase tracking-wide leading-relaxed sm:leading-[1.8] md:leading-[2.2rem] opacity-60 max-w-3xl mx-auto px-4">
+      <div className="mt-4 sm:mt-4 text-center text-base sm:text-lg md:text-xl ibm-plex-mono-regular uppercase tracking-wide leading-relaxed sm:leading-[1.8] md:leading-[2.2rem] opacity-60 max-w-3xl mx-auto px-4">
         The future of mental wellness is here - are you ready to talk?
         <br className="hidden sm:block" />
         Discover the power of voice-first therapy with your personal AI listener, Athers.
@@ -21,7 +21,7 @@ export default function Landing() {
           </Button>
         </Link>
         <Link href="/ather" className="w-full sm:w-auto">
-          <Button className="bg-white border hover:bg-white text-black rounded-md p-4 sm:p-6 md:p-8 ibm-plex-mono-regular text-base sm:text-lg md:text-xl w-full">
+          <Button className="bg-white border-2 hover:bg-zinc-100 text-black rounded-md p-4 sm:p-6 md:p-8 ibm-plex-mono-regular text-base sm:text-lg md:text-xl w-full">
             TRY ATHERS NOW
           </Button>
         </Link>
