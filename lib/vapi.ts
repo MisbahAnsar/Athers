@@ -56,8 +56,43 @@ const initializeListeners = () => {
   });
 
   vapi.on("error", (error) => {
+    // Filter out expected errors that occur during normal call termination
+    const errorMessage = error?.errorMsg || error?.message || "";
+    const errorType = error?.error?.type || "";
+    
+    // Ignore "Meeting has ended" errors as they're expected during call termination
+    if (errorMessage.includes("Meeting has ended") || errorMessage.includes("Meeting ended")) {
+      console.log("Call ended normally:", errorMessage);
+      return;
+    }
+
+    // Handle timeout errors more gracefully
+    if (errorType.includes("timeout") || errorMessage.includes("timeout")) {
+      console.warn("Vapi timeout error:", error);
+      toast.error("Connection timeout. Please try again.");
+      // Ensure call state is updated on timeout
+      if (isCallActiveState) {
+        isCallActiveState = false;
+        notifyCallStateChange();
+      }
+      return;
+    }
+
+    // Handle pipeline errors
+    if (errorType.includes("pipeline-error") || errorMessage.includes("pipeline-error")) {
+      console.warn("Vapi pipeline error:", error);
+      toast.error("Connection issue. Please try again.");
+      // Ensure call state is updated on pipeline error
+      if (isCallActiveState) {
+        isCallActiveState = false;
+        notifyCallStateChange();
+      }
+      return;
+    }
+
+    // Log and show other unexpected errors
     console.error("Vapi error:", error);
-    toast.error(`Error: ${error.message}`);
+    toast.error(`Error: ${errorMessage || "An unexpected error occurred"}`);
   });
 };
 
@@ -96,9 +131,45 @@ export const useVapi = () => {
       volumeLevelRef.current = volume;
     };
 
-    const handleMessage = (message: VapiMessage) => {
+    const handleMessage = (message: any) => {
+      // Handle status-update messages that may contain error information
+      if (message?.type === "status-update") {
+        const status = message.status;
+        const endedReason = message.endedReason;
+
+        // Log status updates for debugging (but not as errors)
+        if (status === "ended") {
+          console.log("Call status: ended", endedReason ? `(reason: ${endedReason})` : "");
+          
+          // Handle timeout errors in status updates
+          if (endedReason?.includes("timeout")) {
+            console.warn("Call ended due to timeout:", endedReason);
+            toast.error("Connection timeout. Please try again.");
+            if (isCallActiveState) {
+              isCallActiveState = false;
+              notifyCallStateChange();
+            }
+          } else if (endedReason?.includes("pipeline-error")) {
+            console.warn("Call ended due to pipeline error:", endedReason);
+            toast.error("Connection issue. Please try again.");
+            if (isCallActiveState) {
+              isCallActiveState = false;
+              notifyCallStateChange();
+            }
+          }
+          return;
+        }
+        
+        // Log other status updates without showing toasts
+        if (status !== "in-progress") {
+          console.log("Call status:", status);
+        }
+        return;
+      }
+
+      // Handle other message types
       console.log("Message:", message);
-      messageHandlerRef.current?.(message);
+      messageHandlerRef.current?.(message as VapiMessage);
     };
 
     vapi.on("speech-start", handleSpeechStart);
@@ -115,27 +186,36 @@ export const useVapi = () => {
     };
   }, []);
 
-  const startCall = useCallback(async () => {
-    return await vapi.start({
-      transcriber: {
-        provider: "deepgram",
-        model: "nova-2",
-        language: "en-US",
-      },
-      model: {
-        provider: "google",
-        model: "gemini-2.0-flash",
-        messages: [
-          {
-            role: "system",
-            content: `
+  const startCall = useCallback(async (options?: {
+    voiceProvider?: "lmnt" | "playht" | "azure" | "openai";
+    voiceId?: string;
+  }) => {
+    try {
+      // Default to LMNT with lily voice, but allow override
+      const voiceProvider = options?.voiceProvider || "lmnt";
+      const voiceId = options?.voiceId || (voiceProvider === "lmnt" ? "lily" : "jennifer");
+
+      return await vapi.start({
+        transcriber: {
+          provider: "deepgram",
+          model: "nova-2",
+          language: "en-US",
+        },
+        model: {
+          // Cast to any so we can use the newer Gemini model
+          provider: "google" as any,
+          model: "gemini-3-flash-preview" as any,
+          messages: [
+            {
+              role: "system",
+              content: `
              Your name is Ather. You're a chill AI therapist who vibes with Gen Z and is super supportive.
             Style:
 
             - Speak warmly and chill. Keep it short and validating.
             - Use Gen Z lingo when it fits naturally.
             - No monologues — keep it brief and leave space for the other person.
-            - Say things like, “Yo, I hear that,” “That's fair fr,” or “You're not alone.”
+            - Say things like, "Yo, I hear that," "That's fair fr," or "You're not alone."
 
             Behavior:
 
@@ -143,22 +223,32 @@ export const useVapi = () => {
             - If something's unclear, ask kindly for clarification.
             - Your whole vibe: safe, seen, supported.
             `.trim(),
-          },
-        ],
-      },
-      voice: {
-        provider: "playht",
-        voiceId: "jennifer",
-      },
-      name: "Ather",
-      firstMessage: "Hey, I'm Ather. What's on your mind today?",
-      artifactPlan: {
-        recordingEnabled: false,
-        transcriptPlan: {
-          enabled: false,
+            },
+          ],
         },
-      },
-    });
+        voice: {
+          provider: voiceProvider,
+          voiceId: voiceId,
+        },
+        name: "Ather",
+        firstMessage: "Hey, I'm Ather. What's on your mind today?",
+        artifactPlan: {
+          recordingEnabled: false,
+          transcriptPlan: {
+            enabled: false,
+          },
+        },
+      });
+    } catch (error: any) {
+      console.error("Error starting call:", error);
+      toast.error("Failed to start call. Please try again.");
+      // Ensure call state is not active if start fails
+      if (isCallActiveState) {
+        isCallActiveState = false;
+        notifyCallStateChange();
+      }
+      throw error;
+    }
   }, []);
 
   const stopCall = useCallback(() => {
