@@ -11,7 +11,7 @@ export default function AtherPage() {
       <h1 className="text-4xl font-bold">Talk to Ather</h1>
 
       <div className="flex gap-4">
-        <Button onClick={startCall}>Start Call</Button>
+        <Button onClick={() => startCall()}>Start Call</Button>
         <Button onClick={stopCall} variant="secondary">End Call</Button>
       </div>
 
