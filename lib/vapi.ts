@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import Vapi from "@vapi-ai/web";
 import toast from "react-hot-toast";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 type VapiMessage = 
   | { type: "assistant-speaking" }
   | { type: "assistant-done" }
