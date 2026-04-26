@@ -58,11 +58,16 @@ export default function AtherComponent() {
           className={`absolute -inset-1 rounded-lg blur opacity-75 transition-all duration-500 ${
             isCallActive
               ? "bg-green-500 animate-pulse"
+              : isCallStarting
+              ? "bg-yellow-500 animate-pulse"
               : "bg-red-500"
           }`}
         ></div>
 
         <div className="relative flex gap-4 bg-background p-4 rounded-lg">
+          <div className="flex items-center pr-2 text-sm opacity-80 select-none">
+            {isCallActive ? "Connected" : isCallStarting ? "Connecting…" : "Not connected"}
+          </div>
           <Button 
             onClick={handleStartCall}
             disabled={isCallActive || isCallStarting}

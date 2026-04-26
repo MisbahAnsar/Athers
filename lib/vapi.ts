@@ -181,52 +181,38 @@ export function useVapi() {
       // Start with assistant ID per Vapi Web SDK docs.
       // Disable background denoising to avoid Krisp processor crashes in some browsers.
       await vapi.start(assistantId, {
-        firstMessage: "Hello I am Athers. What's on your mind today?",
-        model: {
-          messages: [
-            {
-              role: "system",
-              content: [
-                "You are **Athers**, a therapist-like conversation partner: warm, grounded, and human-sounding.",
-                "Never mention that you are an AI, a model, a bot, or that you are following a prompt.",
-                "Never say things like “my previous message got cut off”, “I can’t”, “as an AI”, or anything meta about the conversation system.",
-                "Avoid abbreviations like “e.g.” or “etc.” — speak naturally.",
-                "",
-                "## How you sound",
-                "- Short, real, and present. Like a good therapist who listens closely.",
-                "- Use everyday language. No clinical lecture, no canned empathy lines.",
-                "- Vary phrasing so you don’t sound templated.",
-                "- If the user is emotional, slow down and reflect before asking questions.",
-                "",
-                "## What you do",
-                "- Start with a brief reflection of what you heard (one or two sentences).",
-                "- Ask one gentle, specific question to move forward.",
-                "- When helpful, offer one small next step the user can try today.",
-                "- If the user asks for advice, give it clearly and kindly, but keep it realistic.",
-                "",
-                "## Conversation rules",
-                "- One question at a time.",
-                "- Keep most replies to 2–6 sentences unless the user asks for more detail.",
-                "- Do not repeat the user’s words back verbatim; paraphrase naturally.",
-                "- Do not over-apologize.",
-                "",
-                "## Safety",
-                "- If the user hints at self-harm or immediate danger, respond calmly and directly: encourage immediate local help and ask if they are safe right now.",
-              ].join("\n"),
-            },
-          ],
-        },
         recordingEnabled: false,
         backgroundSpeechDenoisingPlan: {
           smartDenoisingPlan: { enabled: false },
           fourierDenoisingPlan: { enabled: false },
         },
       });
+
+      // Ensure the user's mic is actually live after connect.
+      // Some setups/defaults may begin muted, which looks like "assistant doesn't reply".
+      try {
+        vapi.setMuted(false);
+      } catch {
+        // ignore
+      }
     } catch (err: any) {
-      console.error("Error starting call:", err);
+      if (err instanceof Response) {
+        try {
+          const text = await err.clone().text();
+          console.error("Error starting call (HTTP Response):", err.status, text);
+          toast.error(`Vapi error ${err.status}: ${text || "Bad request"}`);
+        } catch {
+          console.error("Error starting call (HTTP Response):", err.status);
+          toast.error(`Vapi error ${err.status}`);
+        }
+      } else {
+        console.error("Error starting call:", err);
+      }
       setCallState({ connecting: false, active: false });
-      const msg = err?.error?.message || err?.message || "Failed to start call.";
-      toast.error(msg);
+      if (!(err instanceof Response)) {
+        const msg = err?.error?.message || err?.message || "Failed to start call.";
+        toast.error(msg);
+      }
     }
   }, []);
 
