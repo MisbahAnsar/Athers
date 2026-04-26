@@ -1,4 +1,5 @@
-// app/sign-in/page.tsx or pages/sign-in.tsx
+'use client'
+
 import { SignIn } from '@clerk/nextjs'
 
 export default function Page() {

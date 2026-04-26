@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Toaster } from "react-hot-toast";
 
 export default function AtherComponent() {
-  const { startCall, stopCall, isCallActive } = useVapi();
+  const { startCall, stopCall, isCallActive, isCallStarting } = useVapi();
 
   const handleStartCall = () => {
     startCall();
@@ -65,16 +65,16 @@ export default function AtherComponent() {
         <div className="relative flex gap-4 bg-background p-4 rounded-lg">
           <Button 
             onClick={handleStartCall}
-            disabled={isCallActive}
-            className={isCallActive ? "opacity-50 cursor-not-allowed" : ""}
+            disabled={isCallActive || isCallStarting}
+            className={(isCallActive || isCallStarting) ? "opacity-50 cursor-not-allowed" : ""}
           >
-            Start Call
+            {isCallStarting ? "Connecting..." : "Start Call"}
           </Button>
           <Button
             className="hover:bg-gray-200"
             onClick={stopCall}
             variant="secondary"
-            disabled={!isCallActive}
+            disabled={!isCallActive && !isCallStarting}
           >
             End Call
           </Button>
